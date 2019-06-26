@@ -2,26 +2,42 @@
 cousera peer grade project
 Data Analysis
 In the data the readme.me document, you will get a detailed perspective of what to expect and how to manipulate the data. There are three core variables:
+# Getting-and-Cleaning-Data-Course-Project
 
-Main
-2. Test 3. Train
-Main : activity_labels Inertial Signals Inertial Signals Test: features subject_test subject_train Train: features.info X_test X_train
+# 1. Merging the training and the test sets to create one data set.
+For reading data using the function read.fwf which takes the ``rep(16, 561)`` as an argument. 16 - because the number of characters in each column is 15 (including the sign) + space separator. 561 - since the number of features in the file features.txt. Subject and activity columns are also added by reading the corresponding files. ``rbind`` function is used to merge two datasets.
+# 2. Extracting only the measurements on the mean and standard deviation for each measurement.
+Column names are taken from file features.txt. Using the following code ``which(grepl('mean', features_names) | grepl('std', features_names))`` selected columns of mean and standart deviation.
+# 3. Using descriptive activity names to name the activities in the data set.
+File activity_labels.txt contains descripts of activity numbers. All that is needed it's to convert a column into a factor.
+```
+ds$activity <- factor(ds$activity, 
+                      levels = c(1,2,3,4,5,6),
+                      labels = c('WALKING',
+                                 'WALKING_UPSTAIRS',
+                                 'WALKING_DOWNSTAIRS',
+                                 'SITTING',
+                                 'STANDING',
+                                 'LAYING'))
+```
+# 4. Appropriately labels the data set with descriptive variable names.
+File features.txt contains descriptions of variables.
+```
+conn <- file(features)
+features_names <- readLines(conn)
+close(conn)
 
-README y_test y_train ‘features_info.txt’: Shows information about the variables used on the feature vector. * - ‘features.txt’: List of all features. * - ‘activity_labels.txt’: Links the class labels with their activity name. * - ‘train/X_train.txt’: Training set. * - ‘train/y_train.txt’: Training labels. * - ‘test/X_test.txt’: Test set. *- ‘test/y_test.txt’: Test labels
+features_names <- sub(".*? (.+)", "\\1", features_names)
 
-Analysis shows that you can categorize the data into 4 segments * training set * test set * features * activity labels
+colnames(ds) <- c(features_names, c('subject', 'activity'))
+```
+Using next code to read and remove number of each variable. And then add colnames to data set, with 'subject' and 'activity' as last columns.
+## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+Using ``library(dplyr)`` and next code:
+```
+avg_ds <- ds %>%
+  group_by(subject, activity) %>%
+  summarise_all(list(mean))
+```
 
-Inertial Signal data is not required. Additionally, features and activity label are more for tagging and descriptive than data sets
-### 1. Output Steps - Here we begin how to create the data set of training and test
-#Reading training tables - xtrain / ytrain, subject train
-xtrain = read.table(file.path(pathdata, "train", "X_train.txt"),header = FALSE)
-ytrain = read.table(file.path(pathdata, "train", "y_train.txt"),header = FALSE)
-subject_train = read.table(file.path(pathdata, "train", "subject_train.txt"),header = FALSE)
-#Reading the testing tables
-xtest = read.table(file.path(pathdata, "test", "X_test.txt"),header = FALSE)
-ytest = read.table(file.path(pathdata, "test", "y_test.txt"),header = FALSE)
-subject_test = read.table(file.path(pathdata, "test", "subject_test.txt"),header = FALSE)
-#Read the features data
-features = read.table(file.path(pathdata, "features.txt"),header = FALSE)
-#Read activity labels data
-activityLabels = read.table(file.path(pathdata, "activity_labels.txt"),header = FALSE)
+For writing data to `tidy_data.txt` used next code: `write.table(avg_ds, 'tidy_data.txt', row.name = FALSE)`.
