@@ -1,4 +1,4 @@
-# data-science-project--3-coursera
+## data-science-project--3-coursera
 cousera peer grade project
 Data Analysis
 In the data the readme.me document, you will get a detailed perspective of what to expect and how to manipulate the data. There are three core variables:
@@ -8,36 +8,26 @@ In the data the readme.me document, you will get a detailed perspective of what 
 For reading data using the function read.fwf which takes the ``rep(16, 561)`` as an argument. 16 - because the number of characters in each column is 15 (including the sign) + space separator. 561 - since the number of features in the file features.txt. Subject and activity columns are also added by reading the corresponding files. ``rbind`` function is used to merge two datasets.
 # 2. Extracting only the measurements on the mean and standard deviation for each measurement.
 Column names are taken from file features.txt. Using the following code ``which(grepl('mean', features_names) | grepl('std', features_names))`` selected columns of mean and standart deviation.
-# 3. Using descriptive activity names to name the activities in the data set.
-File activity_labels.txt contains descripts of activity numbers. All that is needed it's to convert a column into a factor.
-```
-ds$activity <- factor(ds$activity, 
-                      levels = c(1,2,3,4,5,6),
-                      labels = c('WALKING',
-                                 'WALKING_UPSTAIRS',
-                                 'WALKING_DOWNSTAIRS',
-                                 'SITTING',
-                                 'STANDING',
-                                 'LAYING'))
-```
-# 4. Appropriately labels the data set with descriptive variable names.
-File features.txt contains descriptions of variables.
-```
-conn <- file(features)
-features_names <- readLines(conn)
-close(conn)
+## Usage of the script
 
-features_names <- sub(".*? (.+)", "\\1", features_names)
+The script is to create a tidy data set for [UCI HAR Dataset]
 
-colnames(ds) <- c(features_names, c('subject', 'activity'))
-```
-Using next code to read and remove number of each variable. And then add colnames to data set, with 'subject' and 'activity' as last columns.
-## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-Using ``library(dplyr)`` and next code:
-```
-avg_ds <- ds %>%
-  group_by(subject, activity) %>%
-  summarise_all(list(mean))
-```
+## Initial data for research
+(https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip). 
 
-For writing data to `tidy_data.txt` used next code: `write.table(avg_ds, 'tidy_data.txt', row.name = FALSE)`.
+## The following files from the initial dataset is used:
+  1. ***features.txt*** - descriptions for features measured
+  2. ***X_train.txt*** - measurements of the features in training set 
+  3. ***y_train.txt*** - activity (from 1 to 6) for each measurement from the training set
+  4. ***subject_train.txt*** - subject (volunteer) id from the training set
+  5. ***X_test.txt*** - measurements of the features in test set
+  6. ***y_test.txt*** - activity (from 1 to 6) for each measurement from the test set
+  7. ***subject_test.txt*** - subject (volunteer) id for each measurement from the test set
+
+## How script works
+This script consists of six parts:
+1. Download data, upzip files and load data into R
+2. Merge training data and test data to a singel data set
+3. Extract only the measurements on the mean and standard deviation for each measurement
+4. Appropriately label the data set with descriptive variable names
+5. Create a independent tidy set with the average of each variable for each activity and each subject
